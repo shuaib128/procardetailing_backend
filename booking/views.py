@@ -130,6 +130,7 @@ class UserView(APIView):
         number = request.data["PhoneNumber"]
         userstatus = None
         userID = None
+        responce = None
 
         result = client.customers.search_customers(
         body = {
@@ -148,6 +149,7 @@ class UserView(APIView):
             # print(result.body)
             userstatus = "exists"
             userID = result.body["customers"][0]["id"]
+            responce = result.body
         elif result.is_error() or len(result.body) == 0:
             result = client.customers.create_customer(
             body = {
@@ -159,17 +161,18 @@ class UserView(APIView):
                 }
             )
             if result.is_success():
-                print(result.body)
+                responce = result.body
                 userstatus = "exists"
                 userID = result.body["customer"]['id']
             elif result.is_error():
-                print(result.errors)
+                responce = result.body
                 userstatus = "notexists"
 
         response = Response()
         response.data = {
             'userstatus': userstatus,
-            "userid": userID
+            "userid": userID,
+            "responce": responce
         }
         return response
 
